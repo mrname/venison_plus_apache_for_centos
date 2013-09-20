@@ -77,18 +77,6 @@ set_locale()
   echo "done."
 }  
 
-set_hostname()
-{
-  if [ -n "$hostname" ]
-  then
-    echo -n "Setting up hostname... "
-    hostname $hostname
-    echo $hostname > /etc/hostname
-    echo "127.0.0.1 $hostname" >> /etc/hostname
-    echo "done."
-  fi
-}
-
 set_timezone()
 {
   mv /etc/localtime /etc/localtime.bak
@@ -135,7 +123,6 @@ config_ssh()
   grep -q "UseDNS no" $conf || echo "UseDNS no" >> $conf
   if [ -n "$ssh_port" ]
   then
-   # sed -i -r "s/\s*Port\s+[0-9]+/Port $ssh_port/g" $conf 
     sed -i "s/#Port 22/Port $ssh_port/g" $conf
     cp files/iptables.up.rules tmp/fw.$$
     sed -i -r "s/\s+22\s+/ $ssh_port /" tmp/fw.$$
@@ -190,34 +177,28 @@ install_base()
   echo "done."
 }
 
+install_apache() {
+echo -n "Installing Apache... "
+chmod o+x /home/$sudo_user
+yum -y install httpd httpd-devel
+mkdir /etc/httpd/sites-available
+mkdir /etc/httpd/sites-enabled
+cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.`date "+%Y-%m-%d"`
+echo 'Include sites-enabled/*.conf' >> /etc/httpd/conf/httpd.conf
+sed -i 's/Listen 80/Listen 7080/g' /etc/httpd/conf/httpd.conf
+sed -i 's/#NameVirtualHost *:80/NameVirtualHost *:7080/g' /etc/httpd/conf/httpd.conf
+cp files/mydomain.com_httpd /etc/httpd/sites-available/$hostname.conf
+sed -i -r "s/mydomain.com/$hostname/g" /etc/httpd/sites-available/$hostname.conf
+sed -i -r "s/sudoer/$sudo_user/g" /etc/httpd/sites-available/$hostname.conf
+ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/001-$hostname.conf > /dev/null 2>&1
+
+}
+
 install_php()
 {
   echo -n "Installing PHP... "
   mkdir -p /var/www
-  yum -y install php php-common php-pecl-apc php-cli php-pear php-pdo php-mysql php-pecl-memcache php-pecl-memcached php-gd php-mbstring php-mcrypt php-xml php-fpm > /dev/null 2>&1 
-  perl -p -i -e 's|# Default-Stop:|# Default-Stop:      0 1 6|g;' /etc/init.d/php-fpm
-  cp /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.`date "+%Y-%m-%d"`
-  chmod 000 /etc/php-fpm.d/www.conf.`date "+%Y-%m-%d"` && mv /etc/php-fpm.d/www.conf.`date "+%Y-%m-%d"` /tmp
-  perl -p -i -e 's|listen = 127.0.0.1:9000|listen = /var/run/php5-fpm.sock|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;listen.allowed_clients = 127.0.0.1|listen.allowed_clients = 127.0.0.1|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;pm.status_path = /status|pm.status_path = /status|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;ping.path = /ping|ping.path = /ping|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;ping.response = pong|ping.response = pong|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;request_terminate_timeout = 0|request_terminate_timeout = 300s|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;request_slowlog_timeout = 0|request_slowlog_timeout = 5s|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;listen.backlog = -1|listen.backlog = -1|g;' /etc/php-fpm.d/www.conf
-  sed -i -r "s/apache/$sudo_user/g" /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;slowlog = log/\$pool.log.slow|slowlog = /var/log/php5-fpm.log.slow|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;catch_workers_output = yes|catch_workers_output = yes|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|pm.max_children = 50|pm.max_children = 25|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|pm.start_servers = 5|pm.start_servers = 3|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|pm.min_spare_servers = 5|pm.min_spare_servers = 2|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|pm.max_spare_servers = 35|pm.max_spare_servers = 4|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;pm.max_requests = 500|pm.max_requests = 500|g;' /etc/php-fpm.d/www.conf
-  perl -p -i -e 's|;emergency_restart_threshold = 0|emergency_restart_threshold = 10|g;' /etc/php-fpm.conf
-  perl -p -i -e 's|;emergency_restart_interval = 0|emergency_restart_interval = 1m|g;' /etc/php-fpm.conf
-  perl -p -i -e 's|;process_control_timeout = 0|process_control_timeout = 5s|g;' /etc/php-fpm.conf
-  perl -p -i -e 's|;daemonize = yes|daemonize = yes|g;' /etc/php-fpm.conf
+  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-fpm php-opcache > /dev/null 2>&1 
   cp /etc/php.ini /etc/php.ini.`date "+%Y-%m-%d"`
   perl -p -i -e 's|;date.timezone =|date.timezone = America/Los_Angeles|g;' /etc/php.ini
   perl -p -i -e 's|expose_php = On|expose_php = Off|g;' /etc/php.ini
@@ -227,9 +208,7 @@ install_php()
   perl -p -i -e 's|;realpath_cache_ttl = 120|realpath_cache_ttl = 600|g;' /etc/php.ini
   perl -p -i -e 's|upload_max_filesize = 2M|upload_max_filesize = 10M|g;' /etc/php.ini
   perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php.ini
-  cp files/apc.ini /etc/php.d/apc.ini
-  /etc/init.d/php-fpm stop > /dev/null 2>&1
-  /etc/init.d/php-fpm start > /dev/null 2>&1
+  sed -i 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=60/g' /etc/php.d/opcache.ini
   echo "done."
 }
 
@@ -537,9 +516,6 @@ check_vars
 
 # set system locale.... not required in CentOS 6
 set_locale
-
-# set host name of server
-set_hostname
 
 # set timezone of server
 set_timezone

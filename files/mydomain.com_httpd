@@ -1,0 +1,13 @@
+<VirtualHost *:7080>
+    ServerAdmin useremail
+    DocumentRoot /home/sudoer/mydomain.com/public
+    ServerName mydomain.com
+    ServerAlias www.mydomain.com
+    ErrorLog logs/mydomain.com.error.log
+    CustomLog logs/mydomain.com.access.log common
+
+    <Directory "/home/sudoer/mydomain.com/public">
+       AllowOverride All
+    </Directory>
+</VirtualHost>
+

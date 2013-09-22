@@ -26,7 +26,7 @@ sysconfig="/etc/sysconfig/$prog"
 lockfile="/var/lock/subsys/nginx"
 pidfile="/var/run/${prog}.pid"
 
-NGINX_CONF_FILE="/etc/nginx/nginx.conf"
+NGINX_CONF_FILE="/etc/nginx/conf/nginx.conf"
 
 [ -f $sysconfig ] && . $sysconfig
 

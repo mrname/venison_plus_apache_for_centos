@@ -149,7 +149,6 @@ setup_firewall()
 setup_tmpdir()
 {
   echo -n "Setting up temporary directory... "
- # echo "APT::ExtractTemplates::TempDir \"/var/local/tmp\";" > /etc/apt/apt.conf.d/50extracttemplates && mkdir /var/local/tmp/
   mkdir ~/tmp && chmod 777 ~/tmp
   mount --bind ~/tmp /tmp
   echo "done."
@@ -349,10 +348,10 @@ config_nginx()
   mkdir /var/log/nginx
   chown $sudo_user:$sudo_user /var/log/nginx
   cp files/mydomain.com /etc/nginx/sites-available/$hostname.conf
-  rm -rf /etc/nginx/fastcgi_params /etc/nginx/conf/fastcgi_params
-  cp files/fastcgi_params /etc/nginx/conf/fastcgi_params
-  cp files/fastcgi_cache /etc/nginx/conf/fastcgi_cache
-  cp files/fastcgi_rules /etc/nginx/conf/fastcgi_rules
+  #rm -rf /etc/nginx/fastcgi_params /etc/nginx/conf/fastcgi_params
+  cp files/proxy_params /etc/nginx/conf/proxy_params
+  cp files/proxy_cache /etc/nginx/conf/proxy_cache
+  cp files/proxy_cache_rules /etc/nginx/conf/proxy_cache_rules
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/conf/nginx.conf
   sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
@@ -549,6 +548,9 @@ config_db
 
 # configure nginx web server
 config_nginx
+
+# Install Apache
+install_apache
 
 # install postfix
 install_postfix

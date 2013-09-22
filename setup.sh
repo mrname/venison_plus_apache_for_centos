@@ -190,6 +190,7 @@ cp files/mydomain.com_httpd /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/mydomain.com/$hostname/g" /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/sudoer/$sudo_user/g" /etc/httpd/sites-available/$hostname.conf
 ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/001-$hostname.conf > /dev/null 2>&1
+chkconfig httpd on
 
 }
 
@@ -197,7 +198,7 @@ install_php()
 {
   echo -n "Installing PHP... "
   mkdir -p /var/www
-  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-fpm php-opcache > /dev/null 2>&1 
+  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-opcache > /dev/null 2>&1 
   cp /etc/php.ini /etc/php.ini.`date "+%Y-%m-%d"`
   perl -p -i -e 's|;date.timezone =|date.timezone = America/Los_Angeles|g;' /etc/php.ini
   perl -p -i -e 's|expose_php = On|expose_php = Off|g;' /etc/php.ini
@@ -403,7 +404,7 @@ configure_wp()
   sed -i "s/v_user/$wpuser/g" /home/$sudo_user/$hostname/public/wp-admin/install.php
   sed -i "s/v_pass/$wppass/g" /home/$sudo_user/$hostname/public/wp-admin/install.php
   sed -i "s/v_email/$wpemail/g" /home/$sudo_user/$hostname/public/wp-admin/install.php
-  chown -R $sudo_user:$sudo_user /home/$sudo_user/$hostname
+  chown -R apache:apache /home/$sudo_user/$hostname
   #Run The Install
   php /home/$sudo_user/$hostname/public/wp-admin/install.php > /dev/null 2>&1
   rm -f /home/$sudo_user/$hostname/public/wp-admin/install.php
@@ -412,7 +413,7 @@ configure_wp()
   wget http://downloads.wordpress.org/plugin/nginx-helper.1.7.2.zip > /dev/null 2>&1
   unzip nginx-helper.1.7.2.zip -d /home/$sudo_user/$hostname/public/wp-content/plugins/ > /dev/null 2>&1
   cd ..
-  chown -R $sudo_user:$sudo_user /home/$sudo_user/$hostname/public/wp-content/plugins/nginx-helper/
+  chown -R apache:apache /home/$sudo_user/$hostname
   table="$DB_PREFIX"
   table+="options"
   mysql $WP_DB -e "UPDATE $table SET option_value='http://$hostname' WHERE option_name='siteurl'"

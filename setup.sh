@@ -191,6 +191,7 @@ sed -i -r "s/mydomain.com/$hostname/g" /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/sudoer/$sudo_user/g" /etc/httpd/sites-available/$hostname.conf
 ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/001-$hostname.conf > /dev/null 2>&1
 chkconfig httpd on
+/etc/init.d/httpd start
 
 }
 

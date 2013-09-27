@@ -199,7 +199,7 @@ install_php()
 {
   echo -n "Installing PHP... "
   mkdir -p /var/www
-  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-opcache > /dev/null 2>&1 
+  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-apc > /dev/null 2>&1 
   cp /etc/php.ini /etc/php.ini.`date "+%Y-%m-%d"`
   perl -p -i -e 's|;date.timezone =|date.timezone = America/Los_Angeles|g;' /etc/php.ini
   perl -p -i -e 's|expose_php = On|expose_php = Off|g;' /etc/php.ini
@@ -209,7 +209,6 @@ install_php()
   perl -p -i -e 's|;realpath_cache_ttl = 120|realpath_cache_ttl = 600|g;' /etc/php.ini
   perl -p -i -e 's|upload_max_filesize = 2M|upload_max_filesize = 10M|g;' /etc/php.ini
   perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php.ini
-  sed -i 's/;opcache.revalidate_freq=2/opcache.revalidate_freq=60/g' /etc/php.d/opcache.ini
   echo "done."
 }
 

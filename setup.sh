@@ -1,5 +1,56 @@
 #!/bin/bash
 
+#CONSTANTS
+
+#Define Variables For Apache Tuning
+if [ $(free -m | awk 'NR==4 { print $2 }') == 0 ]
+   then
+       version='40'
+       ramCount=`awk 'match($0,/vmguar/) {print $4}' /proc/user_beancounters`
+   else
+       version='45'
+       ramCount=`awk 'match($0,/oomguar/) {print $4}' /proc/user_beancounters`
+fi
+ramBase=-16 && for ((;ramCount>1;ramBase++)); do ramCount=$((ramCount/2)); done
+
+#FUNCTIONS
+
+tune_apache()
+{
+
+#Adjust Prefork Settings
+perl -0 -p -i -e 's/(\<IfModule\sprefork\.c\>(\n|[^\n])*?StartServers\s*?)\s\d+/\1\ '"$ramBase"'/;' \
+-e 's/(\<IfModule\sprefork\.c\>(\n|[^\n])*?MinSpareServers\s*?)\s\d+/\1\ '"$ramBase"'/;' \
+-e 's/(\<IfModule\sprefork\.c\>(\n|[^\n])*?MaxSpareServers\s*?)\s\d+/\1\ '"$(($ramBase*2 + 1))"'/;' \
+-e 's/(\<IfModule\sprefork\.c\>(\n|[^\n])*?ServerLimit\s*?)\s\d+/\1\ '"$(( 50 + (($ramBase**2)*10) + (($ramBase-2)*10) ))"'/;' \
+-e 's/(\<IfModule\sprefork\.c\>(\n|[^\n])*?MaxClients\s*?)\s\d+/\1\ '"$(( 50 + (($ramBase**2)*10) + (($ramBase-2)*10) ))"'/;' \
+-e 's/(\<IfModule\sprefork\.c\>(\n|[^\n])*?MaxRequestsPerChild\s*?)\s\d+/\1\ '"$(( 2048 + ($ramBase*256) ))"'/;' /etc/httpd/conf/httpd.conf 
+
+#Disable Additional Modules
+perl -0 -p -i \
+-e 's/\#?(LoadModule\ authn_alias_module\ modules\/mod_authn_alias\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ authn_anon_module\ modules\/mod_authn_anon\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ authn_dbm_module\ modules\/mod_authn_dbm\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ authnz_ldap_module\ modules\/mod_authnz_ldap\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ authz_dbm_module\ modules\/mod_authz_dbm\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ authz_owner_module\ modules\/mod_authz_owner\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ cache_module\ modules\/mod_cache\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ dav_module\ modules\/mod_dav\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ dav_fs_module\ modules\/mod_dav_fs\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ disk_cache_module\ modules\/mod_disk_cache\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ ext_filter_module\ modules\/mod_ext_filter\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ file_cache_module\ modules\/mod_file_cache\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ info_module\ modules\/mod_info\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ ldap_module\ modules\/mod_ldap\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ mem_cache_module\ modules\/mod_mem_cache\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ status_module\ modules\/mod_status\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ speling_module\ modules\/mod_speling\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ usertrack_module\ modules\/mod_usertrack\.so)/#\1/;' \
+-e 's/\#?(LoadModule\ version_module\ modules\/mod_version\.so)/#\1/;' /etc/httpd/conf/httpd.conf
+
+
+}
+
 get_vars()
 {
 #Prompt For User Variables
@@ -552,6 +603,9 @@ config_nginx
 
 # Install Apache
 install_apache
+
+# Tune Apache
+tune_apache
 
 # install postfix
 install_postfix

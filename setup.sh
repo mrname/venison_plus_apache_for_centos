@@ -215,6 +215,12 @@ cd ..
 
 #Enable Remi Repo
 sed -i '/\[remi\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
+
+#Enable Debug Packages
+sed -i 's/enabled=0/enabled=1' /etc/yum.repos.d/CentOS-Debuginfo.repo
+sed -i '/\[epel-debuginfo\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/epel.repo
+sed -i '/\[remi-debuginfo\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
+
 }
 
 install_base()
@@ -223,7 +229,10 @@ install_base()
   echo -n "Setting up base packages... "
   yum -y upgrade > /dev/null 2>&1
   yum -y groupinstall "Development Tools" > /dev/null 2>&1
-  yum -y install zlib-devel pcre-devel openssl-devel geoip geoip-devel expect git-core htop> /dev/null 2>&1
+  yum -y install zlib-devel pcre-devel openssl-devel geoip geoip-devel expect git-core htop yum-utils > /dev/null 2>&1
+  
+  #Install Debug Packages For Apache Backtrace
+  debuginfo-install httpd php Percona-Server-55-debuginfo curl-debuginfo cyrus-sasl-debuginfo freetype-debuginfo gcc-debuginfo keyutils-debuginfo libX11-debuginfo libXau-debuginfo libXpm-debuginfo libgcrypt-debuginfo libgpg-error-debuginfo libjpeg-turbo-debuginfo libmcrypt-debuginfo libpng-debuginfo libssh2-debuginfo libxcb-debuginfo libxslt-debuginfo nspr-debuginfo nss-debuginfo nss-softokn-debuginfo nss-util-debuginfo php-pecl-apc-debuginfo readline-debuginfo t1lib-debuginfo util-linux-ng-debuginfo 
   echo "done."
 }
 
@@ -237,13 +246,15 @@ cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.`date "+%Y-%m-%d"`
 echo 'Include sites-enabled/*.conf' >> /etc/httpd/conf/httpd.conf
 sed -i 's/Listen 80/Listen 7080/g' /etc/httpd/conf/httpd.conf
 sed -i 's/#NameVirtualHost *:80/NameVirtualHost *:7080/g' /etc/httpd/conf/httpd.conf
+sed -i 's/DirectoryIndex index.html index.html.var/DirectoryIndex index.html index.html.var index.shtml index.cfm index.php index.htm/g' /etc/httpd/conf/httpd.conf
 cp files/mydomain.com_httpd /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/mydomain.com/$hostname/g" /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/sudoer/$sudo_user/g" /etc/httpd/sites-available/$hostname.conf
 ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/001-$hostname.conf > /dev/null 2>&1
-chkconfig httpd on
-/etc/init.d/httpd start
 
+#Allow Core Dumps
+sed -i '/# Source function library/i \ulimit -c unlimited' /etc/init.d/httpd
+echo 'CoreDumpDirectory /tmp' >> /etc/httpd/conf/httpd.conf
 }
 
 install_php()
@@ -514,6 +525,8 @@ init_chkconfig()
   chkconfig postfix on
   chkconfig monit on
   chkconfig fail2ban on
+  chkconfig httpd on
+  /etc/init.d/httpd start > /dev/null 2>&1
 }
 print_report()
 {
@@ -624,6 +637,9 @@ init_chkconfig
 
 # Set root Password for MySQL
 secure_mysql
+
+#Add all services to chkconfig and boot apache
+init_chkconfig
 
 # clean up tmp
 cleanup

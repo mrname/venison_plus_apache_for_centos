@@ -6,7 +6,15 @@
     ErrorLog logs/mydomain.com.error.log
     CustomLog logs/mydomain.com.access.log common
 
+    <IfModule mod_fastcgi.c>
+                AddHandler php5-fcgi .php
+                Action php5-fcgi /php5-fcgi
+                Alias /php5-fcgi /usr/sbin/php-fpm
+                FastCgiExternalServer /usr/sbin/php-fpm -socket /var/run/php5-fpm.sudoer.sock -pass-header Authorization
+    </IfModule>
+
     <Directory "/home/sudoer/mydomain.com/public">
+       Options ExecCGI FollowSymLinks
        AllowOverride All
     </Directory>
 </VirtualHost>

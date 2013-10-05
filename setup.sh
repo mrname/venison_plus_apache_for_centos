@@ -232,7 +232,7 @@ install_base()
   yum -y install zlib-devel pcre-devel openssl-devel geoip geoip-devel expect git-core htop yum-utils > /dev/null 2>&1
   
   #Install Debug Packages For Apache Backtrace
-  debuginfo-install httpd php Percona-Server-55-debuginfo curl-debuginfo cyrus-sasl-debuginfo freetype-debuginfo gcc-debuginfo keyutils-debuginfo libX11-debuginfo libXau-debuginfo libXpm-debuginfo libgcrypt-debuginfo libgpg-error-debuginfo libjpeg-turbo-debuginfo libmcrypt-debuginfo libpng-debuginfo libssh2-debuginfo libxcb-debuginfo libxslt-debuginfo nspr-debuginfo nss-debuginfo nss-softokn-debuginfo nss-util-debuginfo php-pecl-apc-debuginfo readline-debuginfo t1lib-debuginfo util-linux-ng-debuginfo 
+  debuginfo-install httpd php php-fpm Percona-Server-55-debuginfo curl-debuginfo cyrus-sasl-debuginfo freetype-debuginfo gcc-debuginfo keyutils-debuginfo libX11-debuginfo libXau-debuginfo libXpm-debuginfo libgcrypt-debuginfo libgpg-error-debuginfo libjpeg-turbo-debuginfo libmcrypt-debuginfo libpng-debuginfo libssh2-debuginfo libxcb-debuginfo libxslt-debuginfo nspr-debuginfo nss-debuginfo nss-softokn-debuginfo nss-util-debuginfo php-pecl-apc-debuginfo readline-debuginfo t1lib-debuginfo util-linux-ng-debuginfo 
   echo "done."
 }
 
@@ -271,6 +271,17 @@ install_php()
   perl -p -i -e 's|;realpath_cache_ttl = 120|realpath_cache_ttl = 600|g;' /etc/php.ini
   perl -p -i -e 's|upload_max_filesize = 2M|upload_max_filesize = 10M|g;' /etc/php.ini
   perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php.ini
+
+  cp /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.default
+  mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/$sudo_user.conf
+  sed -i "s%;listen = 127.0.0.1:9000%listen = /var/run/php5-fpm.$sudo_user.sock%g" /etc/php-fpm.d/$sudo_user.conf
+  sed -i "s%user = apache%user = $sudo_user%g" /etc/php-fpm.d/$sudo_user.conf
+  perl -p -i -e 's|;pm.status_path = /status|pm.status_path = /status|g;' /etc/php-fpm.d/$sudo_user.conf
+  perl -p -i -e 's|;request_slowlog_timeout = 0|request_slowlog_timeout = 5s|g;' /etc/php-fpm.d/$sudo_user.conf
+  sed -i 's/pm.max_children = 50/pm.max_children = 70/g' /etc/php-fpm.d/$sudo_user.conf
+  sed -i 's/pm.start_servers = 5/pm.start_servers = 8/g' /etc/php-fpm.d/$sudo_user.conf
+  sed -i 's/pm.max_spare_servers = 35/pm.max_spare_servers = 10/g' /etc/php-fpm.d/$sudo_user.conf
+    
   echo "done."
 }
 
@@ -631,6 +642,9 @@ config_nginx
 
 # Install Apache
 install_apache
+
+# Install mod_fastcgi
+install_fastcgi
 
 # Tune Apache
 tune_apache

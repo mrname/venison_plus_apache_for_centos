@@ -261,7 +261,7 @@ install_php()
 {
   echo -n "Installing PHP... "
   mkdir -p /var/www
-  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-apc > /dev/null 2>&1 
+  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-apc php-fpm > /dev/null 2>&1 
   cp /etc/php.ini /etc/php.ini.`date "+%Y-%m-%d"`
   perl -p -i -e 's|;date.timezone =|date.timezone = America/Los_Angeles|g;' /etc/php.ini
   perl -p -i -e 's|expose_php = On|expose_php = Off|g;' /etc/php.ini
@@ -272,6 +272,21 @@ install_php()
   perl -p -i -e 's|upload_max_filesize = 2M|upload_max_filesize = 10M|g;' /etc/php.ini
   perl -p -i -e 's|disable_functions =|disable_functions = "system,exec,shell_exec,passthru,escapeshellcmd,popen,pcntl_exec"|g;' /etc/php.ini
   echo "done."
+}
+
+install_fastcgi()
+{
+cd ./tmp
+wget http://www.fastcgi.com/dist/mod_fastcgi-current.tar.gz
+tar xvfz mod_fastcgi-current.tar.gz
+cd mod_fastcgi-2*
+cp Makefile.AP2 Makefile
+sed -i 's%/usr/local/apache2%/etc/httpd%g' Makefile
+sed -i 's%top_srcdir   = ${top_dir}%top_srcdir   = /usr/sbin%g' Makefile
+sed -i 's%top_builddir = ${top_dir}%top_builddir = /usr/lib64/httpd%g' Makefile
+make && make install
+sed -i '/LoadModule version_module modules\/mod_version.so/ a\LoadModule fastcgi_module modules/mod_fastcgi.so' /etc/httpd/conf/httpd.conf
+mv /etc/httpd/conf.d/php.conf /etc/httpd/conf.d/php.conf.disabled
 }
 
 install_maria()

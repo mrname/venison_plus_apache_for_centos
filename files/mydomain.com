@@ -10,6 +10,14 @@ server {
 
     include /etc/nginx/conf/proxy_cache_rules;
 
+    #Uncomment The Block Below To Make Nginx Server Static Assets Without Consulting Apache first. 
+    #Extra directives for these static assets can be added within this block, or you can leave it empty
+
+    #location ~* ^.+\.(jpg|jpeg|gif|png|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|html|htm)$
+    #{
+    #
+    #}
+
      location / {
        include proxy_params;
        include proxy_cache_rules;

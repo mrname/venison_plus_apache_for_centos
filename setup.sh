@@ -217,7 +217,7 @@ cd ..
 sed -i '/\[remi\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
 
 #Enable Debug Packages
-sed -i 's/enabled=0/enabled=1' /etc/yum.repos.d/CentOS-Debuginfo.repo
+sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Debuginfo.repo
 sed -i '/\[epel-debuginfo\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/epel.repo
 sed -i '/\[remi-debuginfo\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
 
@@ -298,6 +298,7 @@ sed -i 's%top_builddir = ${top_dir}%top_builddir = /usr/lib64/httpd%g' Makefile
 make && make install
 sed -i '/LoadModule version_module modules\/mod_version.so/ a\LoadModule fastcgi_module modules/mod_fastcgi.so' /etc/httpd/conf/httpd.conf
 mv /etc/httpd/conf.d/php.conf /etc/httpd/conf.d/php.conf.disabled
+cd ../../
 }
 
 install_maria()
@@ -553,6 +554,7 @@ init_chkconfig()
   chkconfig fail2ban on
   chkconfig httpd on
   /etc/init.d/httpd start > /dev/null 2>&1
+  /etc/init.d/php-fpm start
 }
 print_report()
 {
@@ -662,7 +664,7 @@ install_monit
 install_fail2ban
 
 #Make Sure Everything Starts On Boot
-init_chkconfig
+#init_chkconfig
 
 # Set root Password for MySQL
 secure_mysql

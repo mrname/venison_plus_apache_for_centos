@@ -274,7 +274,7 @@ install_php()
 
   cp /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.default
   mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/$sudo_user.conf
-  sed -i "s%;listen = 127.0.0.1:9000%listen = /var/run/php5-fpm.$sudo_user.sock%g" /etc/php-fpm.d/$sudo_user.conf
+  sed -i "s%listen = 127.0.0.1:9000%listen = /var/run/php5-fpm.$sudo_user.sock%g" /etc/php-fpm.d/$sudo_user.conf
   sed -i "s%user = apache%user = $sudo_user%g" /etc/php-fpm.d/$sudo_user.conf
   perl -p -i -e 's|;pm.status_path = /status|pm.status_path = /status|g;' /etc/php-fpm.d/$sudo_user.conf
   perl -p -i -e 's|;request_slowlog_timeout = 0|request_slowlog_timeout = 5s|g;' /etc/php-fpm.d/$sudo_user.conf
@@ -502,7 +502,7 @@ configure_wp()
   wget http://downloads.wordpress.org/plugin/nginx-helper.1.7.2.zip > /dev/null 2>&1
   unzip nginx-helper.1.7.2.zip -d /home/$sudo_user/$hostname/public/wp-content/plugins/ > /dev/null 2>&1
   cd ..
-  chown -R apache:apache /home/$sudo_user/$hostname
+  chown -R $sudo_user:apache /home/$sudo_user/$hostname
   table="$DB_PREFIX"
   table+="options"
   mysql $WP_DB -e "UPDATE $table SET option_value='http://$hostname' WHERE option_name='siteurl'"

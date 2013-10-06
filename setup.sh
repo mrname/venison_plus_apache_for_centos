@@ -302,7 +302,8 @@ cp Makefile.AP2 Makefile
 sed -i 's%/usr/local/apache2%/etc/httpd%g' Makefile
 sed -i 's%top_srcdir   = ${top_dir}%top_srcdir   = /usr/sbin%g' Makefile
 sed -i 's%top_builddir = ${top_dir}%top_builddir = /usr/lib64/httpd%g' Makefile
-make && make install > /dev/null 2>&1
+make > /dev/null 2>&1
+make install > /dev/null 2>&1
 sed -i '/LoadModule version_module modules\/mod_version.so/ a\LoadModule fastcgi_module modules/mod_fastcgi.so' /etc/httpd/conf/httpd.conf
 mv /etc/httpd/conf.d/php.conf /etc/httpd/conf.d/php.conf.disabled
 cd ../../
@@ -475,6 +476,7 @@ configure_wp()
   DB_PREFIX=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 7)`
   mkdir -p /home/$sudo_user/$hostname/public/
   touch /home/$sudo_user/$hostname/pagespeed.conf
+  echo 'pagespeed DisableFilters rewrite_javascript;' > /home/$sudo_user/$hostname/pagespeed.conf
   wget -q -o ~/install.log -O /home/$sudo_user/$hostname/public/latest.zip http://wordpress.org/latest.zip
   unzip /home/$sudo_user/$hostname/public/latest.zip -d /home/$sudo_user/$hostname/public/ >> ~/install.log
   mv /home/$sudo_user/$hostname/public/wordpress/* /home/$sudo_user/$hostname/public/
@@ -505,8 +507,8 @@ configure_wp()
   php /home/$sudo_user/$hostname/public/wp-admin/install.php > /dev/null 2>&1
   rm -f /home/$sudo_user/$hostname/public/wp-admin/install.php
   #Adjust The Database. Switch Permalinks, and install/enable Nginx Helper plugin
+  cp files/htaccess /home/$sudo_user/$hostname/public/.htaccess
   cd tmp
-  cp htaccess /home/$sudo_user/$hostname/public/.htaccess
   wget http://downloads.wordpress.org/plugin/nginx-helper.1.7.2.zip > /dev/null 2>&1
   unzip nginx-helper.1.7.2.zip -d /home/$sudo_user/$hostname/public/wp-content/plugins/ > /dev/null 2>&1
   cd ..

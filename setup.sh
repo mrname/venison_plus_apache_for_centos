@@ -460,6 +460,7 @@ install_postfix()
   #echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
   yum -y install postfix > /dev/null 2>&1
   /usr/sbin/postconf -e "inet_interfaces = loopback-only"
+  /etc/init.d/sendmail stop
   service postfix restart > /dev/null 2>&1
   echo "done."
 }

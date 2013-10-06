@@ -449,7 +449,8 @@ config_nginx()
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
   ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
   rm -rf /var/www/nginx-default
-  /etc/init.d/nginx restart > /dev/null 2>&1
+  /etc/init.d/nginx stop > /dev/null 2>&1
+  /etc/init.d/nginx start > /dev/null 2>&1
   echo "done."
 }
 

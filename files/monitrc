@@ -53,7 +53,7 @@ check process php5-fpm with pidfile /var/run/php-fpm/php-fpm.pid
     if cpu > 80% for 5 cycles then restart
     if totalmem > 90% for 5 cycles then restart
     if loadavg(5min) greater than 10 for 8 cycles then stop
-    if failed unixsocket /var/run/php5-fpm.sock then restart
+    if failed unixsocket /var/run/php5-fpm.sudoer.sock then restart
     if 5 restarts within 5 cycles then timeout
 	
 check process postfix with pidfile /var/spool/postfix/pid/master.pid

@@ -529,6 +529,7 @@ install_monit()
   sed -i -r "s/mydomain.com/$hostname/g" /etc/monit.conf
   sed -i -r "s/monitemail/$wpemail/g" /etc/monit.conf
   sed -i -r "s/sshport/$ssh_port/g" /etc/monit.conf
+  sed -i "s/sudoer/$sudo_user/g" /etc/monit.conf
   /etc/init.d/monit restart > /dev/null 2>&1
   echo "done."
 }

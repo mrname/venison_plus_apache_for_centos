@@ -250,6 +250,7 @@ sed -i 's/DirectoryIndex index.html index.html.var/DirectoryIndex index.html ind
 cp files/mydomain.com_httpd /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/mydomain.com/$hostname/g" /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/sudoer/$sudo_user/g" /etc/httpd/sites-available/$hostname.conf
+sed -i -r "s/useremail/$wpemail/g" /etc/httpd/sites-available/$hostname.conf
 ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/001-$hostname.conf > /dev/null 2>&1
 
 #Allow Core Dumps

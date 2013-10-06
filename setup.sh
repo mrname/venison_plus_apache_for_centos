@@ -261,6 +261,7 @@ ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/001-
 #Allow Core Dumps
 sed -i '/# Source function library/i \ulimit -c unlimited' /etc/init.d/httpd
 echo 'CoreDumpDirectory /tmp' >> /etc/httpd/conf/httpd.conf
+echo 'done.'
 }
 
 install_php()
@@ -465,7 +466,7 @@ install_postfix()
   #echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
   yum -y install postfix > /dev/null 2>&1
   /usr/sbin/postconf -e "inet_interfaces = loopback-only"
-  /etc/init.d/sendmail stop
+  /etc/init.d/sendmail stop > /dev/null 2>&1
   service postfix restart > /dev/null 2>&1
   echo "done."
 }

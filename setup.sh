@@ -245,7 +245,7 @@ mkdir /etc/httpd/sites-enabled
 cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.`date "+%Y-%m-%d"`
 echo 'Include sites-enabled/*.conf' >> /etc/httpd/conf/httpd.conf
 sed -i 's/Listen 80/Listen 7080/g' /etc/httpd/conf/httpd.conf
-sed -i 's/#NameVirtualHost *:80/NameVirtualHost *:7080/g' /etc/httpd/conf/httpd.conf
+sed -i 's/#NameVirtualHost \*:80/NameVirtualHost \*:7080/g' /etc/httpd/conf/httpd.conf
 sed -i 's/DirectoryIndex index.html index.html.var/DirectoryIndex index.html index.html.var index.shtml index.cfm index.php index.htm/g' /etc/httpd/conf/httpd.conf
 cp files/mydomain.com_httpd /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/mydomain.com/$hostname/g" /etc/httpd/sites-available/$hostname.conf
@@ -274,6 +274,7 @@ install_php()
 
   cp /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.default
   mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/$sudo_user.conf
+  sed -i "s/\[www\]/\[$sudo_user\]/g" /etc/php-fpm.d/$sudo_user.conf
   sed -i "s%listen = 127.0.0.1:9000%listen = /var/run/php5-fpm.$sudo_user.sock%g" /etc/php-fpm.d/$sudo_user.conf
   sed -i "s%user = apache%user = $sudo_user%g" /etc/php-fpm.d/$sudo_user.conf
   perl -p -i -e 's|;pm.status_path = /status|pm.status_path = /status|g;' /etc/php-fpm.d/$sudo_user.conf

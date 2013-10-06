@@ -229,11 +229,16 @@ install_base()
   echo -n "Setting up base packages... "
   yum -y upgrade > /dev/null 2>&1
   yum -y groupinstall "Development Tools" > /dev/null 2>&1
-  yum -y install zlib-devel pcre-devel openssl-devel geoip geoip-devel expect git-core htop yum-utils > /dev/null 2>&1
-  
-  #Install Debug Packages For Apache Backtrace
-  debuginfo-install httpd php php-fpm Percona-Server-55-debuginfo curl-debuginfo cyrus-sasl-debuginfo freetype-debuginfo gcc-debuginfo keyutils-debuginfo libX11-debuginfo libXau-debuginfo libXpm-debuginfo libgcrypt-debuginfo libgpg-error-debuginfo libjpeg-turbo-debuginfo libmcrypt-debuginfo libpng-debuginfo libssh2-debuginfo libxcb-debuginfo libxslt-debuginfo nspr-debuginfo nss-debuginfo nss-softokn-debuginfo nss-util-debuginfo php-pecl-apc-debuginfo readline-debuginfo t1lib-debuginfo util-linux-ng-debuginfo 
+  yum -y install zlib-devel pcre-devel openssl-devel geoip geoip-devel expect git-core htop yum-utils > /dev/null 2>&1 
   echo "done."
+}
+
+install_debug()
+{
+echo -n "Installing debug packages....."
+#Install Debug Packages For Apache Backtrace
+  debuginfo-install httpd php php-fpm Percona-Server-55-debuginfo curl-debuginfo cyrus-sasl-debuginfo freetype-debuginfo gcc-debuginfo keyutils-debuginfo libX11-debuginfo libXau-debuginfo libXpm-debuginfo libgcrypt-debuginfo libgpg-error-debuginfo libjpeg-turbo-debuginfo libmcrypt-debuginfo libpng-debuginfo libssh2-debuginfo libxcb-debuginfo libxslt-debuginfo nspr-debuginfo nss-debuginfo nss-softokn-debuginfo nss-util-debuginfo php-pecl-apc-debuginfo readline-debuginfo t1lib-debuginfo util-linux-ng-debuginfo
+echo "done!"
 }
 
 install_apache() {
@@ -667,6 +672,9 @@ install_monit
 
 #install Fail2Ban
 install_fail2ban
+
+#install debug packages
+install_debug
 
 #Make Sure Everything Starts On Boot
 #init_chkconfig

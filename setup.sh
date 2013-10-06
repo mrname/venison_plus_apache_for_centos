@@ -69,15 +69,15 @@ while true; do
     echo ""
     passwd_check $sudo_user_passwd $sudo_user_passwd_confirm
     done
-while true; do
-    echo -n "Enter Your New ROOT Password: "
-    read -s root_passwd
-    echo ""
-    echo -n "Confirm Your New ROOT Password: "
-    read -s root_passwd_confirm
-    echo ""
-    passwd_check $root_passwd $root_passwd_confirm
-    done
+#while true; do
+#    echo -n "Enter Your New ROOT Password: "
+#    read -s root_passwd
+#    echo ""
+#    echo -n "Confirm Your New ROOT Password: "
+#    read -s root_passwd_confirm
+#    echo ""
+#    passwd_check $root_passwd $root_passwd_confirm
+#    done
 echo -n "Enter Your Desired SSH Port: "
 read ssh_port
 echo -n "Choose Your Database Server (mysql,percona,mariadb): "
@@ -618,7 +618,7 @@ set_locale
 set_timezone
 
 # change root user password
-change_root_passwd
+#change_root_passwd
 
 # create and configure sudo user
 create_sudo_user

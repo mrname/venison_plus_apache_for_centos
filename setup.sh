@@ -217,7 +217,6 @@ cd ..
 sed -i '/\[remi\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
 
 #Enable Debug Packages
-sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Debuginfo.repo
 sed -i '/\[epel-debuginfo\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/epel.repo
 sed -i '/\[remi-debuginfo\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/remi.repo
 
@@ -236,15 +235,16 @@ install_base()
 install_debug()
 {
 echo -n "Installing debug packages....."
+sed -i 's/enabled=0/enabled=1/g' /etc/yum.repos.d/CentOS-Debuginfo.repo
 #Install Debug Packages For Apache Backtrace
-  debuginfo-install httpd php php-fpm Percona-Server-55-debuginfo curl-debuginfo cyrus-sasl-debuginfo freetype-debuginfo gcc-debuginfo keyutils-debuginfo libX11-debuginfo libXau-debuginfo libXpm-debuginfo libgcrypt-debuginfo libgpg-error-debuginfo libjpeg-turbo-debuginfo libmcrypt-debuginfo libpng-debuginfo libssh2-debuginfo libxcb-debuginfo libxslt-debuginfo nspr-debuginfo nss-debuginfo nss-softokn-debuginfo nss-util-debuginfo php-pecl-apc-debuginfo readline-debuginfo t1lib-debuginfo util-linux-ng-debuginfo
+  debuginfo-install -y httpd php php-fpm Percona-Server-55-debuginfo curl-debuginfo cyrus-sasl-debuginfo freetype-debuginfo gcc-debuginfo keyutils-debuginfo libX11-debuginfo libXau-debuginfo libXpm-debuginfo libgcrypt-debuginfo libgpg-error-debuginfo libjpeg-turbo-debuginfo libmcrypt-debuginfo libpng-debuginfo libssh2-debuginfo libxcb-debuginfo libxslt-debuginfo nspr-debuginfo nss-debuginfo nss-softokn-debuginfo nss-util-debuginfo php-pecl-apc-debuginfo readline-debuginfo t1lib-debuginfo util-linux-ng-debuginfo > /dev/null 2>&1
 echo "done!"
 }
 
 install_apache() {
 echo -n "Installing Apache... "
 chmod o+x /home/$sudo_user
-yum -y install httpd httpd-devel
+yum -y install httpd httpd-devel > /dev/null 2>&1
 mkdir /etc/httpd/sites-available
 mkdir /etc/httpd/sites-enabled
 cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.`date "+%Y-%m-%d"`
@@ -267,7 +267,7 @@ install_php()
 {
   echo -n "Installing PHP... "
   mkdir -p /var/www
-  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-apc php-fpm > /dev/null 2>&1 
+  yum -y install php php-common php-cli php-pear php-pdo php-mysql php-gd php-mbstring php-mcrypt php-xml php-opcache php-fpm > /dev/null 2>&1 
   cp /etc/php.ini /etc/php.ini.`date "+%Y-%m-%d"`
   perl -p -i -e 's|;date.timezone =|date.timezone = America/Los_Angeles|g;' /etc/php.ini
   perl -p -i -e 's|expose_php = On|expose_php = Off|g;' /etc/php.ini
@@ -295,14 +295,14 @@ install_php()
 install_fastcgi()
 {
 cd ./tmp
-wget http://www.fastcgi.com/dist/mod_fastcgi-current.tar.gz
-tar xvfz mod_fastcgi-current.tar.gz
+wget http://www.fastcgi.com/dist/mod_fastcgi-current.tar.gz > /dev/null 2>&1
+tar xvfz mod_fastcgi-current.tar.gz > /dev/null 2>&1
 cd mod_fastcgi-2*
 cp Makefile.AP2 Makefile
 sed -i 's%/usr/local/apache2%/etc/httpd%g' Makefile
 sed -i 's%top_srcdir   = ${top_dir}%top_srcdir   = /usr/sbin%g' Makefile
 sed -i 's%top_builddir = ${top_dir}%top_builddir = /usr/lib64/httpd%g' Makefile
-make && make install
+make && make install > /dev/null 2>&1
 sed -i '/LoadModule version_module modules\/mod_version.so/ a\LoadModule fastcgi_module modules/mod_fastcgi.so' /etc/httpd/conf/httpd.conf
 mv /etc/httpd/conf.d/php.conf /etc/httpd/conf.d/php.conf.disabled
 cd ../../
@@ -454,8 +454,6 @@ config_nginx()
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
   ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
   rm -rf /var/www/nginx-default
-  /etc/init.d/nginx stop > /dev/null 2>&1
-  /etc/init.d/nginx start > /dev/null 2>&1
   echo "done."
 }
 
@@ -508,6 +506,7 @@ configure_wp()
   rm -f /home/$sudo_user/$hostname/public/wp-admin/install.php
   #Adjust The Database. Switch Permalinks, and install/enable Nginx Helper plugin
   cd tmp
+  cp htaccess /home/$sudo_user/$hostname/public/.htaccess
   wget http://downloads.wordpress.org/plugin/nginx-helper.1.7.2.zip > /dev/null 2>&1
   unzip nginx-helper.1.7.2.zip -d /home/$sudo_user/$hostname/public/wp-content/plugins/ > /dev/null 2>&1
   cd ..
@@ -564,7 +563,10 @@ init_chkconfig()
   chkconfig fail2ban on
   chkconfig httpd on
   /etc/init.d/httpd start > /dev/null 2>&1
-  /etc/init.d/php-fpm start
+  /etc/init.d/php-fpm start > /dev/null 2>&1
+  /etc/init.d/nginx stop > /dev/null 2>&1
+  /etc/init.d/nginx start > /dev/null 2>&1
+
 }
 print_report()
 {

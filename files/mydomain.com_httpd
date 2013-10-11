@@ -7,10 +7,10 @@
     CustomLog logs/mydomain.com.access.log common
 
     <IfModule mod_fastcgi.c>
+                FastCgiExternalServer /home/sudoer/mydomain.com/php5.external -socket /var/run/php5-fpm.sudoer.sock 
                 AddHandler php5-fcgi .php
-                Action php5-fcgi /php5-fcgi
-                Alias /php5-fcgi /usr/sbin/php-fpm
-                FastCgiExternalServer /usr/sbin/php-fpm -socket /var/run/php5-fpm.sudoer.sock -pass-header Authorization
+                Action php5-fcgi /usr/lib/cgi-bin/php5.external
+                Alias /usr/lib/cgi-bin/ /home/sudoer/mydomain.com/
     </IfModule>
 
     <Directory "/home/sudoer/mydomain.com/public">

@@ -384,11 +384,6 @@ elif [ "$db_choice" == "mariadb" ]
 else
    install_mysql
 fi
-#Create .my.cnf file for root user
-touch /root/.my.cnf
-echo "[client]" >> /root/.my.cnf
-echo "password='$MYSQL_PASS'" >> /root/.my.cnf
-chmod 600 /root/.my.cnf
 }
 
 secure_mysql()
@@ -404,6 +399,12 @@ y
 y
 y
 EOF
+
+#Create .my.cnf file for root user
+touch /root/.my.cnf
+echo "[client]" >> /root/.my.cnf
+echo "password='$MYSQL_PASS'" >> /root/.my.cnf
+chmod 600 /root/.my.cnf
 }
 
 config_db()

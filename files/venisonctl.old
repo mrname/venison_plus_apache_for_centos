@@ -26,16 +26,20 @@ fi
 check_vars()
 {
   var_check=0
-  if [ -z "$hostname" -o -z "$sudo_user" ]
-    then
+  if [ -n "$hostname" -a -n "$sudo_user" ]
+     then
+     continue
+  else
     echo "Value of variables cannot be empty. You must choose a domain name and user."
     echo ""
     var_check=1
   fi
   if [ ! $(cat /etc/passwd | awk -F: '{ print $1 }' | grep -Fx "$sudo_user") ]
     then
-    if [ -z "$sudo_user_passwd" ]
+    if [ -n "$sudo_user_passwd" ]
        then
+       continue
+    else
        echo "Value of variables cannot be empty. You must choose a password for your user."
        echo ""
        var_check=1
@@ -43,8 +47,10 @@ check_vars()
   fi
  if [ $wp_choice == "Y" ] 
      then
-     if [ -z "$wptitle" -o -z "$wpuser" -o -z "$wppass" -o -z "$wpemail" ]
+     if [ -n "$wptitle" -a -n "$wpuser" -a -n "$wppass" -a -n "$wpemail" ]
         then
+        continue
+     else
         echo "Value of variables cannot be empty. You must enter all the parameters for your WP Install."
        echo ""
        var_check=1
@@ -67,6 +73,7 @@ config_db()
 
 configure_wp()
 {
+  config_db
   echo -n "Setting up WordPress... "
   DB_PREFIX=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 7)`
   mkdir -p /home/$sudo_user/$hostname/public/
@@ -99,7 +106,7 @@ configure_wp()
   sed -i "s/v_email/$wpemail/g" /home/$sudo_user/$hostname/public/wp-admin/install.php
   chown -R apache:apache /home/$sudo_user/$hostname
   #Run The Install
-  php /home/$sudo_user/$hostname/public/wp-admin/install.php
+  php /home/$sudo_user/$hostname/public/wp-admin/install.php > /dev/null 2>&1
   rm -f /home/$sudo_user/$hostname/public/wp-admin/install.php
   #Adjust The Database. Switch Permalinks, and install/enable Nginx Helper plugin
   cp venison_files/htaccess /home/$sudo_user/$hostname/public/.htaccess
@@ -172,8 +179,10 @@ echo -n "Enter Your WordPress Admin Email Address: "
 read wpemail
 fi
 check_vars
-if [ $var_check != 0 ]
+if [ $var_check == 0 ]
    then
+   continue
+else
    echo "You need to enter the information noted above. TRY AGAIN BRO!"
    echo ""
    exit
@@ -181,12 +190,15 @@ fi
 
 #Time To Actually Do The Deed!
 
+#Create Web Directory
+mkdir -p /home/$sudo_user/$hostname/public
 
 #Add Nginx config
 cp /usr/local/sbin/venison_files/mydomain.com /etc/nginx/sites-available/$hostname.conf
 sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
 sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
 ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/$hostname.conf > /dev/null 2>&1
+touch /home/$sudo_user/$hostname/pagespeed.conf
 
 #Create New php-fpm pool if the user is new
 
@@ -227,14 +239,11 @@ ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/$hos
 if [ "$wp_choice" == "Y" ]
    then
    echo "Installing WordPress...."
-   config_db
    configure_wp
    echo "Done!"     
 fi
 
-#Create Web Directory In case WP is not installed
-mkdir -p /home/$sudo_user/$hostname/public
-chown -R $sudo_user:apache /home/$sudo_user
+chown -R $sudo_user:apache /home/$sudo_user/$hostname/
 
 #Reboot Nginx And Apache
 echo "Restarting Web Servers..."
@@ -280,34 +289,37 @@ echo "remove domain"
 clear
 menu_choice=""
 echo "Welcome To The Venison Control Script!"
+while [ "$menu_choice" != "q" ]
+do
+echo ""
 while true
   do
-echo ""
-echo "#################################"
-echo ""
 echo "1) Add A Domain"
 echo "2) Remove A Domain"
 echo ""
 echo "q) quit"
 echo ""
-echo "#################################"
-echo ""
 echo -n "Enter Your Choice: "
 read menu_choice
-echo ""
+menu_choice=$(echo $menu_choice | tr 'A-Z' 'a-z')
+  if [ $menu_choice == 1 ] || [ $menu_choice == 2 ] || [ "$menu_choice" == "q" ]
+       then
+       break
+  else
+     clear
+     echo "Invalid Choice!"
+     echo ""
+  fi
+done
 
-case $menu_choice in
- 
-  1) 
-      add_domain
-  ;;
-  2)
-     remove_domain
-  ;;
-  q)
-     exit
-  ;;
-  *)
-   echo "Enter A Valid Menu Choice"
-esac
+if [ "$menu_choice" == 1 ]
+    then
+    add_domain
+elif [ "$menu_choice" == 2 ]
+    then
+    remove_domain
+elif [ "$menu_choice" == "q" ]
+   then
+    break
+fi
 done

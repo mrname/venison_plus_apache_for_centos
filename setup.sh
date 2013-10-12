@@ -256,7 +256,7 @@ echo "done!"
 
 install_apache() {
 echo -n "Installing Apache... "
-chmod o+x /home/$sudo_user
+chmod 710 /home/$sudo_user
 yum -y install httpd httpd-devel > /dev/null 2>&1
 mkdir /etc/httpd/sites-available
 mkdir /etc/httpd/sites-enabled

@@ -278,7 +278,7 @@ echo 'CoreDumpDirectory /tmp' >> /etc/httpd/conf/httpd.conf
 echo 'done.'
 
 #Add apache to www-data group and make it run as that group
-usermod -g www-data apache
+usermod -G www-data apache
 
 }
 
@@ -531,7 +531,7 @@ configure_wp()
   sed -i "s/v_user/$wpuser/g" /home/$sudo_user/$hostname/public/wp-admin/install.php
   sed -i "s/v_pass/$wppass/g" /home/$sudo_user/$hostname/public/wp-admin/install.php
   sed -i "s/v_email/$wpemail/g" /home/$sudo_user/$hostname/public/wp-admin/install.php
-  chown -R apache:apache /home/$sudo_user/$hostname
+  chown -R $sudo_user:www-data /home/$sudo_user/$hostname
   #Run The Install
   php /home/$sudo_user/$hostname/public/wp-admin/install.php > /dev/null 2>&1
   rm -f /home/$sudo_user/$hostname/public/wp-admin/install.php
@@ -541,7 +541,7 @@ configure_wp()
   wget http://downloads.wordpress.org/plugin/nginx-helper.1.7.2.zip > /dev/null 2>&1
   unzip nginx-helper.1.7.2.zip -d /home/$sudo_user/$hostname/public/wp-content/plugins/ > /dev/null 2>&1
   cd ..
-  chown -R $sudo_user:apache /home/$sudo_user/$hostname
+  chown -R $sudo_user:www-data /home/$sudo_user/$hostname
   table="$DB_PREFIX"
   table+="options"
   mysql $WP_DB -e "UPDATE $table SET option_value='http://$hostname' WHERE option_name='siteurl'"

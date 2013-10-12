@@ -66,6 +66,7 @@ perl -0 -p -i \
 get_vars()
 {
 #Prompt For User Variables
+clear
 echo "Welcome To Venison For CentOS!!!!"
 echo ""
 echo -n "Enter The Hostname Of Your Website: "

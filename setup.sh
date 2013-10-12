@@ -263,6 +263,7 @@ mkdir /etc/httpd/sites-enabled
 cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/httpd.conf.`date "+%Y-%m-%d"`
 echo 'Include sites-enabled/*.conf' >> /etc/httpd/conf/httpd.conf
 sed -i 's/Listen 80/Listen 7080/g' /etc/httpd/conf/httpd.conf
+sed -i 's/group apache/group www-data/g' /etc/httpd/conf/httpd.conf
 sed -i 's/#NameVirtualHost \*:80/NameVirtualHost \*:7080/g' /etc/httpd/conf/httpd.conf
 sed -i 's/DirectoryIndex index.html index.html.var/DirectoryIndex index.html index.html.var index.shtml index.cfm index.php index.htm/g' /etc/httpd/conf/httpd.conf
 cp files/mydomain.com_httpd /etc/httpd/sites-available/$hostname.conf
@@ -275,6 +276,11 @@ ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/$hos
 sed -i '/# Source function library/i \ulimit -c unlimited' /etc/init.d/httpd
 echo 'CoreDumpDirectory /tmp' >> /etc/httpd/conf/httpd.conf
 echo 'done.'
+
+#Add apache to www-data group and make it run as that group
+groupadd www-data
+usermod -g www-data apache
+
 }
 
 install_php()
@@ -424,6 +430,9 @@ config_nginx()
 {
   echo -n "Setting up Nginx... "
   cd tmp 
+
+  #Add user and assign to www-data group
+  useradd -s /bin/false -g www-data nginx
 
   #Get Nginx
   wget http://nginx.org/download/nginx-1.4.1.tar.gz > /dev/null 2>&1

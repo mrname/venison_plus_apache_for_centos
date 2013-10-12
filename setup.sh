@@ -18,13 +18,13 @@ ramBase=-16 && for ((;ramCount>1;ramBase++)); do ramCount=$((ramCount/2)); done
 #Create venison control script
 create_control()
 {
+mkdir -p /var/lib/venison
 cp files/venisonctl /usr/local/sbin
 chmod 755 /usr/local/sbin/venisonctl
-mkdir /usr/local/sbin/venison_files
-cp files/mydomain.com /usr/local/sbin/venison_files
-cp files/mydomain.com_httpd /usr/local/sbin/venison_files
-cp files/htaccess /usr/local/sbin/venison_files
-cp files/install.php /usr/local/sbin/venison_files
+cp files/mydomain.com /var/lib/venison
+cp files/mydomain.com_httpd /var/lib/venison
+cp files/htaccess /var/lib/venison
+cp files/install.php /var/lib/venison
 }
 
 tune_apache()

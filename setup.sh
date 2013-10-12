@@ -15,6 +15,18 @@ ramBase=-16 && for ((;ramCount>1;ramBase++)); do ramCount=$((ramCount/2)); done
 
 #FUNCTIONS
 
+#Create venison control script
+create_control()
+{
+cp files/venisonctl /usr/local/sbin
+chmod 755 /usr/local/sbin/venisonctl
+mkdir /usr/local/sbin/venison_files
+cp files/mydomain.com /usr/local/sbin/venison_files
+cp files/mydomain.com_httpd /usr/local/sbin/venison_files
+cp files/htaccess /usr/local/sbin/venison_files
+cp files/install.php /usr/local/sbin/venison_files
+}
+
 tune_apache()
 {
 
@@ -694,6 +706,9 @@ secure_mysql
 
 #Add all services to chkconfig and boot apache
 init_chkconfig
+
+#Create Control Script
+create_control
 
 # clean up tmp
 cleanup

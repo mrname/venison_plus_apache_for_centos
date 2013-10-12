@@ -278,7 +278,6 @@ echo 'CoreDumpDirectory /tmp' >> /etc/httpd/conf/httpd.conf
 echo 'done.'
 
 #Add apache to www-data group and make it run as that group
-groupadd www-data
 usermod -g www-data apache
 
 }
@@ -432,6 +431,7 @@ config_nginx()
   cd tmp 
 
   #Add user and assign to www-data group
+  groupadd www-data
   useradd -s /bin/false -g www-data nginx
 
   #Get Nginx

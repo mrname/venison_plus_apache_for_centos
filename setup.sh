@@ -256,7 +256,7 @@ cp files/mydomain.com_httpd /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/mydomain.com/$hostname/g" /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/sudoer/$sudo_user/g" /etc/httpd/sites-available/$hostname.conf
 sed -i -r "s/useremail/$wpemail/g" /etc/httpd/sites-available/$hostname.conf
-ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/001-$hostname.conf > /dev/null 2>&1
+ln -s -v /etc/httpd/sites-available/$hostname.conf /etc/httpd/sites-enabled/$hostname.conf > /dev/null 2>&1
 
 #Allow Core Dumps
 sed -i '/# Source function library/i \ulimit -c unlimited' /etc/init.d/httpd
@@ -344,7 +344,7 @@ mv /etc/my.cnf /etc/my.cnf.`date "+%Y-%m-%d"`
   cp files/my.cnf /etc/my.cnf
   touch /var/lib/mysql/mysql-slow.log
   chown mysql:mysql /var/lib/mysql/mysql-slow.log
-  /etc/init.d/mysql start 
+  /etc/init.d/mysql start > /dev/null 2>&1 
   echo "done."
 
 }
@@ -454,7 +454,7 @@ config_nginx()
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/conf/nginx.conf
   sed -i -r "s/mydomain.com/$hostname/g" /etc/nginx/sites-available/$hostname.conf
   sed -i -r "s/sudoer/$sudo_user/g" /etc/nginx/sites-available/$hostname.conf
-  ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/001-$hostname.conf > /dev/null 2>&1
+  ln -s -v /etc/nginx/sites-available/$hostname.conf /etc/nginx/sites-enabled/$hostname.conf > /dev/null 2>&1
   rm -rf /var/www/nginx-default
   echo "done."
 }

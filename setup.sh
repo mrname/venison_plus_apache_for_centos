@@ -388,7 +388,7 @@ fi
 touch /root/.my.cnf
 echo "[client]" >> /root/.my.cnf
 echo "password='$MYSQL_PASS'" >> /root/.my.cnf
-
+chmod 600 /root/.my.cnf
 }
 
 secure_mysql()

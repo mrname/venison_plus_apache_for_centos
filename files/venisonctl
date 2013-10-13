@@ -474,7 +474,158 @@ echo ""
 
 install_new_relic()
 {
+clear
+echo "### New Relic Installer ###"
 echo ""
+echo -n "Enter your license key: "
+read license_key
+echo ""
+echo "Installing..."
+echo ""
+rpm -Uvh http://yum.newrelic.com/pub/newrelic/el5/x86_64/newrelic-repo-5-3.noarch.rpm
+yum install newrelic-sysmond newrelic-php5
+newrelic-install <<EOF 
+1
+$license_key
+EOF
+ 
+nrsysmond-config --set license_key=$license_key
+cp /etc/newrelic/newrelic.cfg.template /etc/newrelic/newrelic.cfg
+/etc/init.d/newrelic-sysmond restart
+echo ""
+echo "Restarting Web And Database servers..."
+echo ""
+/etc/init.d/nginx restart
+echo ""
+/etc/init.d/httpd restart
+echo ""
+/etc/init.d/php-fpm restart
+echo ""
+/etc/init.d/mysql restart
+echo ""
+echo "Install Complete!"
+echo ""
+}
+
+install_wp_standalone()
+{
+echo "## WordPress Installer ##"
+echo ""
+echo "NOTE: This will not create a new domain, just a new installation of WordPress on a previously existin virtual host. If you need to add a new domain, go to the main menu. You can also install WordPress when adding a new domain."
+echo ""
+echo -n "Enter the FULL URL that WordPress is being installed on (i.e. http://domain.com): " 
+read wp_url
+wp_url=$(echo $wp_url | tr 'A-Z' 'a-z')
+echo -n "Enter the FULL path to the location where WordPress should be installed: (i.e. /home/user/domain.com/public/wp): "
+read wp_dir
+wp_dir=$(echo $wp_dir | tr 'A-Z' 'a-z')
+echo -n "Enter The Title Of Your Website: "
+read wptitle
+echo -n "Enter Your WordPress Admin Username: "
+read wpuser
+while true; do
+    echo -n "Enter Your WordPress Admin Password: "
+    read -s wppass
+    echo ""
+    echo -n "Confirm Your WordPress Admin Password: "
+    read -s wppass_confirm
+    echo ""
+    passwd_check $wppass $wppass_confirm
+    done
+echo -n "Enter Your WordPress Admin Email Address: "
+read wpemail
+
+echo ""
+system_user=$(echo $wp_dir | awk -F/ '{ print $3 }')
+echo -n "Setting up WordPress... "
+  DB_PREFIX=`echo $(</dev/urandom tr -dc A-Za-z0-9 | head -c 7)`
+  mkdir -p $wp_dir
+  wget -q -o ~/install.log -O $wp_dir/latest.zip http://wordpress.org/latest.zip
+  unzip $wp_dir/latest.zip -d $wp_dir >> ~/install.log
+  mv $wp_dir/wordpress/* $wp_dir
+  rm -rf $wp_dir/wordpress
+  rm -rf $wp_dir/latest.zip
+  perl -p -i -e "s|database_name_here|$WP_DB|;" $wp_dir/wp-config-sample.php
+  perl -p -i -e "s|username_here|$WP_USER|;" $wp_dir/wp-config-sample.php
+  perl -p -i -e "s|password_here|$WP_USER_PASS|;" $wp_dir/wp-config-sample.php
+  perl -p -i -e "s|\$table_prefix  = 'wp_';|\$table_prefix  = '$DB_PREFIX';|;" $wp_dir/wp-config-sample.php
+  mv $wp_dir/wp-config-sample.php $wp_dir/wp-config.php
+  wget -O /tmp/wp.keys https://api.wordpress.org/secret-key/1.1/salt/ > /dev/null 2>&1
+  sed -i '/#@-/r /tmp/wp.keys' $wp_dir/wp-config.php
+  sed -i "/#@+/,/#@-/d" $wp_dir/wp-config.php
+  rm -rf $wp_dir/license.txt && rm -rf $wp_dir/readme.html
+  rm -rf /tmp/wp.keys
+  #curl -d "weblog_title=$wptitle&user_name=$wpuser&admin_password=$wppass&admin_password2=$wppass&admin_email=$wpemail" http://$hostname/wp-admin/install.php?step=2 >/dev/null 2>&1
+  sed -i 's/'"$(printf '\015')"'$//g' $wp_dir/wp-config.php
+  chmod 400 $wp_dir/wp-config.php
+    rm -rf $wp_dir/wp-admin/install.php
+  cp /var/lib/venison/install.php $wp_dir/wp-admin/
+  sed -i "s/v_title/$wptitle/g" $wp_dir/wp-admin/install.php
+  sed -i "s/v_user/$wpuser/g" $wp_dir/wp-admin/install.php
+  sed -i "s/v_pass/$wppass/g" $wp_dir/wp-admin/install.php
+  sed -i "s/v_email/$wpemail/g" $wp_dir/wp-admin/install.php
+  chown -R $system_user:www-data $wp_dir
+  #Run The Install
+  php $wp_dir/wp-admin/install.php
+  rm -f $wp_dir/wp-admin/install.php
+  #Adjust The Database. Switch Permalinks, and install/enable Nginx Helper plugin
+  cp /var/lib/venison/htaccess $wp_dir/.htaccess
+  wget -O /tmp/nginx-helper.1.7.2.zip http://downloads.wordpress.org/plugin/nginx-helper.1.7.2.zip > /dev/null 2>&1
+  unzip /tmp/nginx-helper.1.7.2.zip -d $wp_dir/wp-content/plugins/ > /dev/null 2>&1
+  rm -f /tmp/nginx-helper.1.7.2.zip
+  chown -R $system_user:www-data $wp_dir
+  table="$DB_PREFIX"
+  table+="options"
+  mysql $WP_DB -e "UPDATE $table SET option_value='$wp_url' WHERE option_name='siteurl'"
+  mysql $WP_DB -e "UPDATE $table SET option_value='$wp_url' WHERE option_name='home'"
+  mysql $WP_DB -e "UPDATE $table SET option_value='/%postname%/' WHERE option_name='permalink_structure'"
+  mysql $WP_DB -e "UPDATE $table SET option_value='a:1:{i:0;s:29:\"nginx-helper/nginx-helper.php\";}' WHERE option_name='active_plugins'"
+  mysql $WP_DB -e "UPDATE $table SET option_value='a:17:{s:9:\"log_level\";s:4:\"INFO\";s:12:\"log_filesize\";i:5;s:12:\"enable_purge\";i:1;s:10:\"enable_map\";i:0;s:10:\"enable_log\";i:0;s:12:\"enable_stamp\";i:1;s:21:\"purge_homepage_on_new\";i:1;s:22:\"purge_homepage_on_edit\";i:1;s:21:\"purge_homepage_on_del\";i:1;s:20:\"purge_archive_on_new\";i:1;s:21:\"purge_archive_on_edit\";i:1;s:20:\"purge_archive_on_del\";i:1;s:28:\"purge_archive_on_new_comment\";i:0;s:32:\"purge_archive_on_deleted_comment\";i:0;s:17:\"purge_page_on_mod\";i:1;s:25:\"purge_page_on_new_comment\";i:1;s:29:\"purge_page_on_deleted_comment\";i:1;}' WHERE option_name='rt_wp_nginx_helper_global_options'"
+  mysql $WP_DB -e "UPDATE $table SET option_value='a:13:{s:12:\"enable_purge\";i:1;s:10:\"enable_map\";i:0;s:10:\"enable_log\";i:0;s:12:\"enable_stamp\";i:1;s:22:\"purge_homepage_on_edit\";i:1;s:21:\"purge_homepage_on_del\";i:1;s:21:\"purge_archive_on_edit\";i:1;s:20:\"purge_archive_on_del\";i:1;s:28:\"purge_archive_on_new_comment\";i:0;s:32:\"purge_archive_on_deleted_comment\";i:0;s:17:\"purge_page_on_mod\";i:1;s:25:\"purge_page_on_new_comment\";i:1;s:29:\"purge_page_on_deleted_comment\";i:1;}' WHERE option_name='rt_wp_nginx_helper_options'"
+  echo "done."
+
+}
+
+#MENUS
+
+software_menu() 
+{
+clear
+menu_choice=""
+echo "###  DOMAIN TOOLS  ###"
+while true
+  do
+  make_constants
+echo ""
+echo "#################################"
+echo ""
+echo "1) Install New Relic"
+echo "2) Install WordPress"
+echo ""
+echo "q) Return To Main Menu"
+echo ""
+echo "#################################"
+echo ""
+echo -n "Enter Your Choice: "
+read menu_choice
+echo ""
+
+case $menu_choice in
+
+  1)
+      install_new_relic
+  ;;
+  2)
+       config_db
+       install_wp_standalone
+  ;;
+  q)
+     break
+  ;;
+  *)
+   echo "Enter A Valid Menu Choice"
+esac
+done
 }
 
 dom_management_menu() {
@@ -550,7 +701,7 @@ case $menu_choice in
       dom_management_menu
   ;;
   2)
-     software_management_menu
+     software_menu
   ;;
   q)
      exit

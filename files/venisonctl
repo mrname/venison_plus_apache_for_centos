@@ -470,14 +470,17 @@ echo ""
 echo ""
 /etc/init.d/httpd restart
 echo ""
-
 }
 
-#BEGIN PROGRAM
+install_new_relic()
+{
+echo ""
+}
 
+dom_management_menu() {
 clear
 menu_choice=""
-echo "Welcome To The Venison Control Script!"
+echo "###  DOMAIN TOOLS  ###"
 while true
   do
   make_constants
@@ -489,7 +492,7 @@ echo "2) Remove A Domain"
 echo "3) Disable A Domain"
 echo "4) Enable A Domain"
 echo ""
-echo "q) quit"
+echo "q) Return To Main Menu"
 echo ""
 echo "#################################"
 echo ""
@@ -512,9 +515,51 @@ case $menu_choice in
      enable_domain
   ;;
   q)
+     break
+  ;;
+  *)
+   echo "Enter A Valid Menu Choice"
+esac
+done
+}
+
+main_menu()
+{
+while true
+do
+clear
+menu_choice=""
+echo "Welcome To The Venison Control Script!"
+echo ""
+echo "#################################"
+echo ""
+echo "1) Domain Tools"
+echo "2) Add/Remove Software"
+echo ""
+echo "q) quit"
+echo ""
+echo "#################################"
+echo ""
+echo -n "Enter Your Choice: "
+read menu_choice
+echo ""
+
+case $menu_choice in
+
+  1)
+      dom_management_menu
+  ;;
+  2)
+     software_management_menu
+  ;;
+  q)
      exit
   ;;
   *)
    echo "Enter A Valid Menu Choice"
 esac
 done
+
+}
+#BEGIN PROGRAM
+main_menu

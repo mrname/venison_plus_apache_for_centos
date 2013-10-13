@@ -485,7 +485,7 @@ echo ""
 echo "Installing..."
 echo ""
 rpm -Uvh http://yum.newrelic.com/pub/newrelic/el5/x86_64/newrelic-repo-5-3.noarch.rpm
-yum install newrelic-sysmond newrelic-php5
+yum -y install newrelic-sysmond newrelic-php5
 newrelic-install <<EOF 
 1
 $license_key

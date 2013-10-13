@@ -235,6 +235,8 @@ if [ ! $(cat /etc/passwd | awk -F: '{ print $1 }' | grep -Fx "$sudo_user") ]
     { echo 'export PS1="\[\e[32;1m\]\u\[\e[0m\]\[\e[32m\]@\h\[\e[36m\]\w \[\e[33m\]\$ \[\e[0m\]"'
     } >> /home/$sudo_user/.bashrc
     chmod 710 /home/$sudo_user
+    #add new user to SFTP allow list
+    sed -i "/AllowUsers/ s/$/ $sudo_user/" /etc/ssh/sshd_config
 fi
 
 #Add Apache Config

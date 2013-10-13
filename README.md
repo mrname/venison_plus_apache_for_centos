@@ -13,6 +13,7 @@ This script requires CentOS 6. It installs and configures the required OS packag
 
 NOTE: The script disables SSH root login, sets up a sudo user, and optionally changes the SSH port for server security. When you run the setup script, you will be prompted for these values. It is HIGHLY RECOMMENDED that you change your SSH port to something unique, although fail2ban is active upon deployment. 
 
+IMPORTANT: You MUST be root when installing or running venisonctl.
 Installation
 ============================
 

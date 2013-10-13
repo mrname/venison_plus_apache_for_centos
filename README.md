@@ -1,7 +1,7 @@
 venison_plus_apache_for_centos
 ==============================
 
-A modification of Venison that replaces php-fpm with Apache (for all you .htaccess fiends). It is an adaption of the Venison deploy script written by TJ Stein:
+A modification of Venison that adds Apache (for all you .htaccess fiends). It is an adaption of the Venison deploy script written by TJ Stein:
 
 https://github.com/tjstein/venison
 

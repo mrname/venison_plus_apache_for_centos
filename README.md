@@ -59,6 +59,7 @@ This adaptation of Venison includes the following new features:
 
 All Nginx modules are active on the inital WordPress deployment, and fail2Ban is immediately active, blocking the SSH port only. Fail2Ban has a preset jail for DDOS protection which can be activated in the 'jail.conf' file. The WordPress install comes with the Nginx Helper plugin, which automatically purges the Nginx cache when content is updated. Although the plugin is active, it needs to have cache purging turned on, and settings configured. PageSpeed is using default settings. Depending on your website, you might need to change these. This can be changed in the 'pagespeed.conf' file in the document root of your website, at the same level as the 'public' directory. Consult the PageSpeed documentation for more info.
 
+This build also adds Apache to the stack, which is running mod_fastcgi to connect to php-fpm. When you add domains, individual php-fpm pools will be created if you are running the site under a new user. This adds a higher level of customization and security, but it also means that your php-fpm pools will need to be properly tuned depending on the number of sites running under that user.
 
 License
 ============================

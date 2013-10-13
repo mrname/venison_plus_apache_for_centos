@@ -460,7 +460,7 @@ config_nginx()
   make > /dev/null 2>&1
   make install > /dev/null 2>&1
   cd ../../
-  mkdir -p /etc/nginx/ngx_pagespeed_cache && chown nginx:nginx /etc/nginx/ngx_pagespeed_cache
+  mkdir -p /etc/nginx/ngx_pagespeed_cache && chown nginx:www-data /etc/nginx/ngx_pagespeed_cache
   cp files/nginx /etc/init.d/nginx
   chmod 755 /etc/init.d/nginx
   cp /etc/nginx/conf/nginx.conf /etc/nginx/conf/nginx.conf.`date "+%Y-%m-%d"`
@@ -473,7 +473,7 @@ config_nginx()
   mkdir -p /etc/nginx/sites-available/
   mkdir -p /etc/nginx/sites-enabled/
   mkdir /var/log/nginx
-  chown nginx:nginx /var/log/nginx
+  chown nginx:www-data /var/log/nginx
   cp files/mydomain.com /etc/nginx/sites-available/$hostname.conf
   #rm -rf /etc/nginx/fastcgi_params /etc/nginx/conf/fastcgi_params
   cp files/proxy_params /etc/nginx/conf/proxy_params

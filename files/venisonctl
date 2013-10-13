@@ -340,7 +340,7 @@ if [ "$user_delete" == "Y" ]
    then
    echo ""
    echo "Deleting the user $dom_user..."
-   userdel $dom_user
+   userdel -f $dom_user
    echo "Deleted the user $dom_user"
    echo ""
 fi

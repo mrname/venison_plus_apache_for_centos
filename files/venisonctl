@@ -128,7 +128,7 @@ configure_wp()
   wget -O /tmp/nginx-helper.1.7.2.zip http://downloads.wordpress.org/plugin/nginx-helper.1.7.2.zip > /dev/null 2>&1
   unzip /tmp/nginx-helper.1.7.2.zip -d /home/$sudo_user/$hostname/public/wp-content/plugins/ > /dev/null 2>&1
   rm -f /tmp/nginx-helper.1.7.2.zip
-  chown -R $sudo_user:www-data /home/$sudo_user/$hostname
+  chown -R $sudo_user:www-data /home/$sudo_user
   table="$DB_PREFIX"
   table+="options"
   mysql $WP_DB -e "UPDATE $table SET option_value='http://$hostname' WHERE option_name='siteurl'"

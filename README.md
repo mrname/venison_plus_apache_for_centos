@@ -29,7 +29,7 @@ Installing with git:
 Install Manually:
 
 1. Login to the server via ssh, download the script files from the GitHub repo as a zip file, and unzip:
-   wget https://github.com/mrname/venison_for_centos/archive/master.zip && unzip master.zip
+   wget https://github.com/mrname/venison_plus_apache_for_centos/archive/master.zip && unzip master.zip
 2. Enter setup directory:
 	- cd venison_for_centos
 3. sh setup.sh

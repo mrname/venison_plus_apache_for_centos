@@ -237,6 +237,7 @@ sed -i '/\[remi-debuginfo\]/,/^ *\[/ s/enabled=0/enabled=1/' /etc/yum.repos.d/re
 
 install_base()
 {
+  yum -y install wget > /dev/null 2>&1
   init_repos
   echo -n "Setting up base packages... "
   yum -y upgrade > /dev/null 2>&1

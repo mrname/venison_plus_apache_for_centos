@@ -449,12 +449,13 @@ config_nginx()
   #Get PageSpeed Module
   #wget https://github.com/pagespeed/ngx_pagespeed/archive/release-1.5.27.2-beta.zip > /dev/null 2>&1
   wget -O pagespeed.zip https://github.com/pagespeed/ngx_pagespeed/archive/master.zip > /dev/null 2>&1
-  unzip pagespeed.zip > /dev/null 2>&1
-  cd ngx_pagespeed-master
+  wget -O pagespeed.zip https://github.com/pagespeed/ngx_pagespeed/archive/v1.7.30.3-beta.zip > /dev/null 2>&1
+  unzip v1.7.30.3-beta.zip > /dev/null 2>&1
+  cd ngx_pagespeed*
   #wget https://dl.google.com/dl/page-speed/psol/1.6.29.5.tar.gz > /dev/null 2>&1
   #tar -xzvf 1.6.29.5.tar.gz > /dev/null 2>&1
-  wget https://dl.google.com/dl/page-speed/psol/1.6.29.7.tar.gz > /dev/null 2>&1
-  tar -xzf 1.6.29.7.tar.gz > /dev/null 2>&1
+  wget https://dl.google.com/dl/page-speed/psol/1.7.30.3.tar.gz > /dev/null 2>&1
+  tar -xzf 1.7.30.3.tar.gz > /dev/null 2>&1
   cd ..
 
   #Configure Nginx

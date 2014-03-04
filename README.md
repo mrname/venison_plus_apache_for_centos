@@ -64,7 +64,7 @@ This build also adds Apache to the stack, which is running mod_fastcgi to connec
 
 License
 ============================
-Copyright (c) 2013 by Justin Crown
+Copyright (c) 2013 by TJ Stein / Justin Crown
 
 This program is free software: you can redistribute it and/or modify it under the terms of the MIT License.
 

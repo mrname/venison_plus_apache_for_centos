@@ -460,7 +460,7 @@ config_nginx()
 
   #Configure Nginx
   cd nginx-1.4.1
-  ./configure --prefix=/etc/nginx --sbin-path=/usr/sbin --with-http_stub_status_module --with-http_realip_module --with-http_gzip_static_module --with-http_flv_module --with-http_geoip_module --with-http_mp4_module --with-http_ssl_module --add-module=../headers-more-nginx-module-master --add-module=../ngx_pagespeed-master --add-module=../ngx_cache_purge-2.1 > /dev/null 2>&1 
+  ./configure --prefix=/etc/nginx --sbin-path=/usr/sbin --with-http_stub_status_module --with-http_realip_module --with-http_gzip_static_module --with-http_flv_module --with-http_geoip_module --with-http_mp4_module --with-http_ssl_module --add-module=../headers-more-nginx-module-master --add-module=../ngx_pagespeed-1.7.30.3-beta --add-module=../ngx_cache_purge-2.1 > /dev/null 2>&1 
   make > /dev/null 2>&1
   make install > /dev/null 2>&1
   cd ../../

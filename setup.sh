@@ -593,6 +593,7 @@ init_chkconfig()
   chkconfig php-fpm on
   chkconfig nginx on
   chkconfig mysql on
+  chkconfig mysqld on
   chkconfig postfix on
   chkconfig monit on
   chkconfig fail2ban on

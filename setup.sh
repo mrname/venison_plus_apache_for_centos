@@ -302,6 +302,8 @@ install_php()
   mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/$sudo_user.conf
   sed -i "s/\[www\]/\[$sudo_user\]/g" /etc/php-fpm.d/$sudo_user.conf
   sed -i "s%listen = 127.0.0.1:9000%listen = /var/run/php5-fpm.$sudo_user.sock%g" /etc/php-fpm.d/$sudo_user.conf
+  sed -i "s%;listen.owner = nobody%listen.owner = $sudo_user%g" /etc/php-fpm.d/$sudo_user.conf
+  sed -i "s%;listen.group = nobody%listen.group = www-data%g" /etc/php-fpm.d/$sudo_user.conf
   sed -i "s%user = apache%user = $sudo_user%g" /etc/php-fpm.d/$sudo_user.conf
   perl -p -i -e 's|;pm.status_path = /status|pm.status_path = /status|g;' /etc/php-fpm.d/$sudo_user.conf
   perl -p -i -e 's|;request_slowlog_timeout = 0|request_slowlog_timeout = 5s|g;' /etc/php-fpm.d/$sudo_user.conf

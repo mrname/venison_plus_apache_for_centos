@@ -1,6 +1,8 @@
 #!/bin/bash
 
 #CONSTANTS
+NGINX_VERSION='1.6.0'
+PAGESPEED_VERSION='1.8.31.4'
 
 #Define Variables For Apache Tuning
 if [ $(free -m | awk 'NR==4 { print $2 }') == 0 ]
@@ -438,8 +440,8 @@ config_nginx()
   useradd -s /bin/false -g www-data nginx
 
   #Get Nginx
-  wget http://nginx.org/download/nginx-1.4.1.tar.gz > /dev/null 2>&1
-  tar xvfz nginx-1.4.1.tar.gz > /dev/null 2>&1
+  wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz > /dev/null 2>&1
+  tar xvfz nginx-${NGINX_VERSION}.tar.gz > /dev/null 2>&1
 
   #GET MODULES
   #Get Cache Purge Module
@@ -449,20 +451,15 @@ config_nginx()
   wget -O headers.zip https://github.com/agentzh/headers-more-nginx-module/archive/master.zip > /dev/null 2>&1
   unzip headers.zip > /dev/null 2>&1
   #Get PageSpeed Module
-  #wget https://github.com/pagespeed/ngx_pagespeed/archive/release-1.5.27.2-beta.zip > /dev/null 2>&1
-  wget -O pagespeed.zip https://github.com/pagespeed/ngx_pagespeed/archive/master.zip > /dev/null 2>&1
-  wget -O pagespeed.zip https://github.com/pagespeed/ngx_pagespeed/archive/v1.7.30.3-beta.zip > /dev/null 2>&1
-  unzip pagespeed.zip > /dev/null 2>&1
-  cd ngx_pagespeed*
-  #wget https://dl.google.com/dl/page-speed/psol/1.6.29.5.tar.gz > /dev/null 2>&1
-  #tar -xzvf 1.6.29.5.tar.gz > /dev/null 2>&1
-  wget https://dl.google.com/dl/page-speed/psol/1.7.30.3.tar.gz > /dev/null 2>&1
-  tar -xzf 1.7.30.3.tar.gz > /dev/null 2>&1
-  cd ..
+  wget https://github.com/pagespeed/ngx_pagespeed/archive/release-${PAGESPEED_VERSION}-beta.zip > /dev/null 2>&1
+  unzip release-${PAGESPEED_VERSION}-beta.zip
+  cd ngx_pagespeed-release-${PAGESPEED_VERSION}-beta/
+  wget https://dl.google.com/dl/page-speed/psol/${PAGESPEED_VERSION}.tar.gz > /dev/null 2>&1
+  tar -xzf ${PAGESPEED_VERSION}.tar.gz > /dev/null 2>&1
 
   #Configure Nginx
-  cd nginx-1.4.1
-  ./configure --prefix=/etc/nginx --sbin-path=/usr/sbin --with-http_stub_status_module --with-http_realip_module --with-http_gzip_static_module --with-http_flv_module --with-http_geoip_module --with-http_mp4_module --with-http_ssl_module --add-module=../headers-more-nginx-module-master --add-module=../ngx_pagespeed-1.7.30.3-beta --add-module=../ngx_cache_purge-2.1 > /dev/null 2>&1 
+  cd ../nginx-${NGINX_VERSION}
+  ./configure --prefix=/etc/nginx --sbin-path=/usr/sbin --with-http_stub_status_module --with-http_realip_module --with-http_gzip_static_module --with-http_flv_module --with-http_geoip_module --with-http_mp4_module --with-http_ssl_module --add-module=../headers-more-nginx-module-master --add-module=../ngx_pagespeed-release-${PAGESPEED_VERSION}-beta --add-module=../ngx_cache_purge-2.1 > /dev/null 2>&1 
   make > /dev/null 2>&1
   make install > /dev/null 2>&1
   cd ../../
